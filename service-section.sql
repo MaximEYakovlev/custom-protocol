@@ -1,3 +1,13 @@
+CREATE TABLE "Admin" (
+  "id" serial PRIMARY KEY,
+  "name" varchar(100),
+  "surname" varchar(100),
+  "email" varchar(100),
+  "password" varchar(100),
+  "created_at" timestamp DEFAULT (now()),
+  "updated_at" timestamp DEFAULT (now())
+);
+
 CREATE TABLE "Device" (
   "id" serial PRIMARY KEY,
   "name" varchar(100),
