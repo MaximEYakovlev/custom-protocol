@@ -2,13 +2,13 @@ CREATE TABLE "Admin" (
   "id" serial PRIMARY KEY,
   "name" varchar(100),
   "surname" varchar(100),
-  "email" varchar(100),
-  "password" varchar(100),
+  "username" varchar(100),
+  "password" varchar(255),
   "created_at" timestamp DEFAULT (now()),
   "updated_at" timestamp DEFAULT (now())
 );
 
-CREATE TABLE "Doctor" (
+CREATE TABLE "DoctorIndex" (
   "id" serial PRIMARY KEY,
   "name" varchar(100),
   "surname" varchar(100),
@@ -17,17 +17,26 @@ CREATE TABLE "Doctor" (
   "updated_at" timestamp DEFAULT (now())
 );
 
-CREATE TABLE "Patient" (
+CREATE TABLE "PatientIndex" (
   "id" serial PRIMARY KEY,
-  "name" varchar(100),
+  "skinType_id" int,
+  "firstname" varchar(100),
   "surname" varchar(100),
   "birthdate" date,
   "sex" varchar(10),
+  "comment" varchar(250),
   "created_at" timestamp DEFAULT (now()),
   "updated_at" timestamp DEFAULT (now())
 );
 
-CREATE TABLE "SkinType" (
+CREATE TABLE "SkinTypeIndex" (
+  "id" serial PRIMARY KEY,
+  "name" varchar(100),
+  "created_at" timestamp DEFAULT (now()),
+  "updated_at" timestamp DEFAULT (now())
+);
+
+CREATE TABLE "ProcedureIndex" (
   "id" serial PRIMARY KEY,
   "name" varchar(100),
   "created_at" timestamp DEFAULT (now()),
@@ -36,71 +45,42 @@ CREATE TABLE "SkinType" (
 
 CREATE TABLE "Treatment" (
   "id" serial PRIMARY KEY,
-  "name" varchar(100),
-  "created_at" timestamp DEFAULT (now()),
-  "updated_at" timestamp DEFAULT (now())
-);
-
-CREATE TABLE "Procedure" (
-  "id" serial PRIMARY KEY,
-  "doctor_id" int,
-  "patient_id" int,
-  "treatment_id" int,
-  "procedure_date" date,
+  "procedureIndex_id" int,
+  "doctorIndex_id" int,
+  "patientIndex_id" int,
+  "pulseIndex_id" int,
+  "date" date,
   "total_shots" int,
   "total_energy" int,
-  "spot_size" float,
-  "fluence_ay" float,
-  "patient_cooling_temp" float,
-  "patient_cooling_flow" float,
-  "shot_count" int,
   "created_at" timestamp DEFAULT (now()),
   "updated_at" timestamp DEFAULT (now())
 );
 
-CREATE TABLE "DoctorTreatment" (
+CREATE TABLE "PulseIndex" (
+  "id" serial PRIMARY KEY,
+  "spot_size" decimal,
+  "fluence_ay" decimal,
+  "patient_cooling_temp" decimal,
+  "patient_cooling_flow" decimal
+);
+
+CREATE TABLE "DoctorIndexPatientIndex" (
   "doctor_id" int,
-  "treatment_id" int,
-  "created_at" timestamp DEFAULT (now()),
-  "updated_at" timestamp DEFAULT (now())
-);
-
-CREATE TABLE "PatientTreatment" (
   "patient_id" int,
-  "treatment_id" int,
   "created_at" timestamp DEFAULT (now()),
   "updated_at" timestamp DEFAULT (now())
 );
 
-CREATE TABLE "PatientSkinType" (
-  "patient_id" int,
-  "skinType_id" int,
-  "created_at" timestamp DEFAULT (now()),
-  "updated_at" timestamp DEFAULT (now())
-);
+ALTER TABLE "PatientIndex" ADD FOREIGN KEY ("skinType_id") REFERENCES "SkinTypeIndex" ("id");
 
-CREATE UNIQUE INDEX ON "Procedure" ("doctor_id", "patient_id", "treatment_id", "procedure_date");
+ALTER TABLE "Treatment" ADD FOREIGN KEY ("procedureIndex_id") REFERENCES "ProcedureIndex" ("id");
 
-CREATE UNIQUE INDEX ON "DoctorTreatment" ("doctor_id", "treatment_id");
+ALTER TABLE "Treatment" ADD FOREIGN KEY ("doctorIndex_id") REFERENCES "DoctorIndex" ("id");
 
-CREATE UNIQUE INDEX ON "PatientTreatment" ("patient_id", "treatment_id");
+ALTER TABLE "Treatment" ADD FOREIGN KEY ("patientIndex_id") REFERENCES "PatientIndex" ("id");
 
-CREATE UNIQUE INDEX ON "PatientSkinType" ("patient_id", "skinType_id");
+ALTER TABLE "Treatment" ADD FOREIGN KEY ("pulseIndex_id") REFERENCES "PulseIndex" ("id");
 
-ALTER TABLE "Procedure" ADD FOREIGN KEY ("doctor_id") REFERENCES "Doctor" ("id");
+ALTER TABLE "DoctorIndexPatientIndex" ADD FOREIGN KEY ("doctor_id") REFERENCES "DoctorIndex" ("id");
 
-ALTER TABLE "Procedure" ADD FOREIGN KEY ("patient_id") REFERENCES "Patient" ("id");
-
-ALTER TABLE "Procedure" ADD FOREIGN KEY ("treatment_id") REFERENCES "Treatment" ("id");
-
-ALTER TABLE "DoctorTreatment" ADD FOREIGN KEY ("doctor_id") REFERENCES "Doctor" ("id");
-
-ALTER TABLE "DoctorTreatment" ADD FOREIGN KEY ("treatment_id") REFERENCES "Treatment" ("id");
-
-ALTER TABLE "PatientTreatment" ADD FOREIGN KEY ("patient_id") REFERENCES "Patient" ("id");
-
-ALTER TABLE "PatientTreatment" ADD FOREIGN KEY ("treatment_id") REFERENCES "Treatment" ("id");
-
-ALTER TABLE "PatientSkinType" ADD FOREIGN KEY ("patient_id") REFERENCES "Patient" ("id");
-
-ALTER TABLE "PatientSkinType" ADD FOREIGN KEY ("skinType_id") REFERENCES "SkinType" ("id");
+ALTER TABLE "DoctorIndexPatientIndex" ADD FOREIGN KEY ("patient_id") REFERENCES "PatientIndex" ("id");
